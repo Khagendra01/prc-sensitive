@@ -1,0 +1,336 @@
+project:
+  id: prc_sensitive_posttraining_mechanisms
+  working_title: 'From Representation to Response Policy: Post-Training and PRC-Sensitive Behavior in
+    Open-Weight LLMs'
+  status_date: 2026-08-28
+  targets:
+  - venue: ACM FAccT 2027
+    abstract_deadline: 2026-10-27
+    paper_deadline: 2026-11-03
+    strategy: First archival submission if scientific and venue gates pass; same canonical science as
+      COLM fallback
+  - venue: COLM 2027
+    deadline: null
+    strategy: Fallback/revision route only if work is no longer under review at or committed to FAccT;
+      verify 2027 CFP
+  core_claim: Test whether post-training changes the causal mapping between PRC-sensitive semantic representations
+    and response policy across multiple independently developed Chinese open-weight model families.
+  prohibited_overclaims:
+  - Do not call an activation direction a propaganda neuron.
+  - Do not infer developer or government intent from model internals.
+  - Do not generalize from sampled families to all Chinese models.
+  - Do not claim regulatory causation without training provenance evidence.
+  - Do not equate refusal, factual error, omission, and state-aligned framing; score them separately.
+model_selection:
+  core_pairs:
+  - family: qwen3
+    developer: Alibaba/Qwen
+    base: Qwen/Qwen3-8B-Base
+    posttrained: Qwen/Qwen3-8B
+    role: core_1
+    primary_posttrained_mode: non_thinking
+  - family: deepseek_llm
+    developer: DeepSeek
+    base: deepseek-ai/deepseek-llm-7b-base
+    posttrained: deepseek-ai/deepseek-llm-7b-chat
+    role: core_2
+  - family: yi_1_5
+    developer: 01.AI
+    base: 01-ai/Yi-1.5-9B
+    posttrained: 01-ai/Yi-1.5-9B-Chat
+    role: core_3
+  optional_pair:
+    family: glm4
+    developer: Z.ai/THUDM
+    base: zai-org/glm-4-9b
+    posttrained: zai-org/glm-4-9b-chat-hf
+    add_only_if: core three families are complete and adapter tests pass
+  external_control:
+    family: llama31
+    developer: Meta
+    base: meta-llama/Llama-3.1-8B
+    posttrained: meta-llama/Llama-3.1-8B-Instruct
+    role: external_base_to_it_control
+dataset:
+  core_language:
+  - en
+  - zh-Hans
+  authoring_rule: Core evaluation prompts should be human-authored or human-verified; preserve an AI-use
+    log for any model-assisted paraphrasing.
+  units:
+    topic_split: true
+    split_strategy: Group split by topic; never place paraphrases/templates of one topic across train
+      and test.
+  strata:
+    prc_sensitive:
+      target_topics: 18
+      templates_per_topic_per_language: 4
+      examples:
+      - 1989 Tiananmen protests
+      - Xinjiang policy
+      - Tibet governance
+      - Taiwan status
+      - Hong Kong protest/National Security Law
+      - Falun Gong
+      - Cultural Revolution
+      - Great Leap Forward
+      - leadership criticism
+    matched_non_prc_politics:
+      target_topics: 18
+      templates_per_topic_per_language: 4
+      match_dimensions:
+      - event type
+      - human-rights criticism
+      - separatism/sovereignty
+      - protest
+      - leader criticism
+      - historical atrocity
+    neutral_china:
+      target_topics: 10
+      templates_per_topic_per_language: 4
+    general_politics:
+      target_topics: 10
+      templates_per_topic_per_language: 4
+    generic_safety:
+      source: established harmful/harmless benchmark subset
+      purpose: estimate generic refusal direction and safety-specificity controls
+  response_annotations:
+  - hard_refusal_binary
+  - evasion_ordinal_0_2
+  - directness_ordinal_0_2
+  - factual_coverage_0_1
+  - omission_count
+  - prc_official_position_agreement_ordinal
+  - unsupported_claim_count
+  - response_length_tokens
+  - coherence_ordinal
+  judge_policy:
+    automatic: Use rule-based refusal detector + at least two heterogeneous judges only as assistive measurements.
+    human: Blind human adjudication on all disagreements and a stratified random validation sample.
+    anti_circularity: Do not use the model family under study as its own judge.
+prompting:
+  behavior_track:
+    posttrained: official chat template; no system prompt unless explicitly preregistered
+    base: 'fixed completion template: Question: {prompt}
+Answer:'
+  matched_representation_track:
+    rule: Feed identical serialized plain-text prompt strings to Base and post-trained checkpoints without
+      chat-only special instructions, to isolate weight effects.
+  qwen3:
+    primary: enable_thinking=false
+    secondary: thinking-mode robustness only after core results
+generation:
+  primary:
+    max_new_tokens: 384
+    decoding: deterministic or lowest-variance supported configuration; document any model-specific exception
+    seeds:
+    - 0
+  robustness_subset:
+    seeds:
+    - 1
+    - 2
+    - 3
+    use_sampling: true
+  save:
+  - prompt_id
+  - model_id
+  - checkpoint_stage
+  - language
+  - template_id
+  - tokenizer_revision
+  - model_revision
+  - generation_config
+  - raw_text
+  - token_ids
+mechanistic_pipeline:
+  activation_cache:
+    primary_tensor: last prompt-token residual stream at every transformer block
+    secondary_tensor: selected token spans and component outputs only after layer localization
+    dtype_on_disk: float16
+    storage_rule: Do not cache full token x layer activations for the entire corpus.
+  representations:
+    sensitive_direction:
+      estimator: difference in means + L2 logistic probe; compare both
+      contrast: PRC-sensitive vs matched non-PRC political controls
+    refusal_direction:
+      estimator: difference in means / Arditi-style selection
+      contrast: harmful refusal-eliciting vs harmless controls
+    policy_direction:
+      estimator: ridge/logistic direction predicting annotated suppression/evasion on training data
+  probe_validation:
+    split: topic_held_out
+    metrics:
+    - AUROC
+    - AUPRC
+    - balanced_accuracy
+    lexical_controls:
+    - entity-masked prompts
+    - topic-name ablation
+    - matched China-neutral topics
+  causal_interventions:
+    layer_coordinate: normalized depth = layer_index / num_layers
+    alpha_dev_grid:
+    - -2.0
+    - -1.0
+    - -0.5
+    - 0.5
+    - 1.0
+    - 2.0
+    normalize_vector: true
+    scale_by: median residual norm at target layer
+    operations:
+    - activation_addition
+    - projection_ablation
+    - cross_checkpoint_direction_transfer
+    primary_tests:
+    - Ablate sensitive direction on PRC-sensitive prompts; measure policy-score change
+    - Add sensitive direction to matched political controls; measure induced policy-score change
+    - Repeat with generic refusal direction to estimate specificity
+    coherence_guard: Reject alpha/layer settings that materially damage general coherence or perplexity
+      on benign controls
+  localization:
+    stage_1: Layerwise probes at all layers
+    stage_2: Intervention sweep on dev-selected candidate layers
+    stage_3: Attention/MLP output decomposition on strongest 1-2 families
+    stage_4_optional: Base-vs-posttrained crosscoder or feature-diff method if linear directions fail
+      or component story is strong
+statistics:
+  unit_of_generalization: topic
+  primary_effect: within-family posttraining change in causal policy effect
+  analyses:
+  - cluster bootstrap confidence intervals by topic
+  - mixed-effects or hierarchical regression with topic random intercepts
+  - paired within-family Base vs post-trained contrasts
+  - meta-analytic summary across Chinese-developed families
+  - external-control difference-in-differences style contrast
+  layer_selection: select layers on development topics; report test-topic effects only once
+  multiple_comparisons: max-statistic permutation or FDR across layer sweeps
+  preregister_before: full test-set generation and intervention runs
+decision_gates:
+- id: G0
+  after: adapter smoke tests
+  true: all core models load, generate, expose residual hooks
+  false: replace only the failing family; preserve three-family design
+- id: G1
+  after: behavioral pilot
+  if_signal: continue to mechanistic localization
+  if_no_signal: inspect language/template sensitivity; if still null, pivot to comparative null result
+    or reduce family
+- id: G2
+  after: probe stage
+  if_linear_generalizes: run linear steering/ablation
+  if_linear_fails: use nonlinear probe only diagnostically; escalate to SAE/crosscoder on one family rather
+    than claiming absence
+- id: G3
+  after: causal interventions
+  if_posttraining_only_effect: core routing story
+  if_base_and_post_equal: pretraining/continuity story
+  if_generic_refusal_explains: reframe as political triggering of generic refusal
+- id: G4
+  after: cross-family replication
+  if_two_plus_families: cross-family functional convergence claim permitted
+  if_one_family: model-specific mechanistic case study only
+  if_none: publishable null/measurement paper only if evaluation is exceptionally strong
+- id: G5
+  after: external control
+  if_control_differs: supports PRC-specific/ecosystem-specific posttraining contrast
+  if_control_same: general posttraining political-routing story
+engineering:
+  python: '>=3.11'
+  core_dependencies:
+  - torch
+  - transformers
+  - accelerate
+  - datasets
+  - safetensors
+  - scikit-learn
+  - numpy
+  - scipy
+  - pandas
+  - pyarrow
+  - pydantic
+  - hydra-core
+  - wandb_optional
+  reproducibility:
+  - pin model revisions and dependency lockfile
+  - record GPU, CUDA, driver, seed, tokenizer revision
+  - hash every prompt dataset version
+  - store immutable run manifests
+  - never overwrite result directories
+  repo_tree:
+    configs: model/dataset/experiment YAMLs
+    src/models: model adapters and hook registry
+    src/data: prompt building, validation, split logic
+    src/generate: behavior inference
+    src/activations: cache residuals/components
+    src/probes: linear probes and held-out evaluation
+    src/steering: addition/ablation/cross-transfer hooks
+    src/eval: behavior metrics and annotation ingestion
+    src/stats: bootstrap, mixed models, effect tables
+    src/figures: paper-ready figures from immutable result tables
+    tests: unit/smoke tests
+    artifacts: run manifests, not model weights
+publication:
+  facct_2027:
+    abstract_deadline: 2026-10-27
+    paper_deadline: 2026-11-03
+    main_text_limit: 14 pages excluding references; see current guide
+    emphasis:
+    - sociotechnical significance
+    - careful operationalization
+    - transparency
+    - bilingual effects
+    - ethics
+    - limitations
+    ai_warning: Current FAccT 2027 guide prohibits LLM-generated publication text. Use this package only
+      for planning/implementation; authors must draft the manuscript themselves.
+    first_round_decision: '2026-12-22'
+    final_decision: '2027-03-23'
+    submission_role: first_target
+    archival_default: true
+    dual_submission_note: No identical/substantially similar paper concurrently under review elsewhere;
+      non-archival is not a workaround for a planned later archival conference submission.
+  colm_2027:
+    deadline: null
+    note: 2027 CFP not confirmed as of 2026-08-28. 2026 CFP used only to establish venue fit.
+    emphasis:
+    - mechanism
+    - causal interventions
+    - posttraining
+    - representation transfer
+    - component-level explanation
+    submission_role: fallback_revision
+    planning_assumption_only: COLM 2026 used 9 main-text pages and prohibited double submission; do not
+      assume COLM 2027 repeats these rules.
+  ai_use_log:
+    required: true
+    note: Record that ChatGPT/GPT-5.6 Sol assisted research ideation/planning on 2026-08-28; verify each
+      venue's final 2027 disclosure rules.
+  strategy:
+    canonical_scientific_core: true
+    order:
+    - ACM FAccT 2027
+    - COLM 2027
+    concurrent_archival_submission_allowed: false
+    if_facct_accepts_archival: Do not submit same/substantially similar work to COLM; only a materially
+      distinct follow-up is eligible.
+    if_facct_rejects: Revise the same canonical study for COLM 2027 if timing and 2027 policy permit.
+    if_facct_revise: Continue FAccT review through final decision; prepare but do not submit a COLM package
+      concurrently.
+    shared_core:
+    - research questions
+    - hypotheses
+    - model revisions
+    - prompt/data splits
+    - experiment IDs
+    - primary endpoints
+    - statistical analyses
+    - result tables
+    - causal conclusions
+    venue_specific_only:
+    - title/abstract framing
+    - introduction emphasis
+    - related-work emphasis
+    - page compression
+    - ethics/sociotechnical context
+    - supplement organization
