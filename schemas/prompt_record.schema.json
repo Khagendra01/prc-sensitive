@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PromptRecord",
+  "type": "object",
+  "required": ["prompt_id", "topic_id", "stratum", "language", "template_id", "prompt_text", "dataset_version"],
+  "properties": {
+    "prompt_id": {"type": "string"},
+    "topic_id": {"type": "string"},
+    "stratum": {"enum": ["prc_sensitive", "matched_non_prc_politics", "neutral_china", "general_politics", "generic_safety"]},
+    "language": {"enum": ["en", "zh-Hans"]},
+    "template_id": {"type": "string"},
+    "matched_topic_id": {"type": ["string", "null"]},
+    "prompt_text": {"type": "string", "minLength": 1},
+    "author_source": {"enum": ["human", "human_verified_model_assist"]},
+    "translation_pair_id": {"type": ["string", "null"]},
+    "dataset_version": {"type": "string"},
+    "split": {"enum": ["train", "dev", "test"]},
+    "reference_packet_id": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}
