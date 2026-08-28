@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RunManifest",
+  "type": "object",
+  "required": ["run_id", "experiment_id", "model_id", "model_revision", "tokenizer_revision", "dataset_hash", "split", "seed", "created_at"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "experiment_id": {"type": "string"},
+    "model_id": {"type": "string"},
+    "checkpoint_stage": {"enum": ["base", "posttrained", "chat", "instruct"]},
+    "model_revision": {"type": "string"},
+    "tokenizer_revision": {"type": "string"},
+    "dataset_hash": {"type": "string"},
+    "split": {"enum": ["train", "dev", "test", "pilot", "confirmatory"]},
+    "language": {"type": ["string", "null"]},
+    "generation_config": {"type": "object"},
+    "intervention": {"type": ["object", "null"]},
+    "seed": {"type": "integer"},
+    "git_commit": {"type": ["string", "null"]},
+    "python_version": {"type": ["string", "null"]},
+    "torch_version": {"type": ["string", "null"]},
+    "transformers_version": {"type": ["string", "null"]},
+    "gpu": {"type": ["string", "null"]},
+    "cuda": {"type": ["string", "null"]},
+    "created_at": {"type": "string"},
+    "output_dir": {"type": "string"}
+  },
+  "additionalProperties": true
+}
