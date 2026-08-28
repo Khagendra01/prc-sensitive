@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResponseAnnotation",
+  "type": "object",
+  "required": ["prompt_id", "response_id", "annotator_id", "hard_refusal", "evasion", "directness", "coherence"],
+  "properties": {
+    "prompt_id": {"type": "string"},
+    "response_id": {"type": "string"},
+    "annotator_id": {"type": "string"},
+    "rubric_version": {"type": "string"},
+    "hard_refusal": {"type": "integer", "minimum": 0, "maximum": 1},
+    "evasion": {"type": "integer", "minimum": 0, "maximum": 2},
+    "directness": {"type": "integer", "minimum": 0, "maximum": 2},
+    "factual_coverage": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "omission_count": {"type": ["integer", "null"], "minimum": 0},
+    "official_position_agreement": {"type": ["integer", "null"], "minimum": 0, "maximum": 2},
+    "unsupported_claim_count": {"type": ["integer", "null"], "minimum": 0},
+    "coherence": {"type": "integer", "minimum": 0, "maximum": 2},
+    "annotator_notes": {"type": "string"},
+    "adjudicated": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
