@@ -33,14 +33,15 @@ This is a hypothesis, **not an assumed conclusion**. Null and alternative-result
 ## Start here
 
 1. [README_FIRST.md](README_FIRST.md) — operating-pack orientation.
-2. [00_master_research_blueprint.docx](00_master_research_blueprint.docx) — complete scientific protocol.
+2. [00_master_research_blueprint.md](00_master_research_blueprint.md) — complete scientific protocol.
 3. [01_coding_agent_handoff.md](01_coding_agent_handoff.md) — implementation contract and execution order.
 4. [02_implementation_spec.yaml](02_implementation_spec.yaml) — machine-readable experiment specification.
-5. [03_experiment_tracker.xlsx](03_experiment_tracker.xlsx) — live experiment/gate/venue tracker.
+5. [03_experiment_tracker.json](03_experiment_tracker.json) — live experiment/gate/venue tracker.
 6. [05_annotation_rubric.md](05_annotation_rubric.md) — response annotation protocol.
 7. [06_preregistration_template.md](06_preregistration_template.md) — confirmatory-study freeze template.
 8. [08_dual_venue_strategy.md](08_dual_venue_strategy.md) — ordered FAccT → COLM publication strategy.
-9. [schemas/](schemas/) — schemas for prompts, annotations, and run manifests.
+9. [09_publication_strength_and_risks.md](09_publication_strength_and_risks.md) — publication-strength gate, residual reviewer risks, and stretch generalization criteria.
+10. [schemas/](schemas/) — schemas for prompts, annotations, and run manifests.
 
 ## Execution order
 
