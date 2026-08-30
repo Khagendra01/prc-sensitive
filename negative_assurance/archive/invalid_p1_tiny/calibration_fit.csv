@@ -1,0 +1,3 @@
+auditor,threshold,cal_sensitivity,cal_specificity,cal_auc,cal_brier,cal_logloss
+BB,0.267,0.9,0.3,0.78,0.19090659223424034,0.5649080567616552
+BB+WB,0.628,0.9,1.0,0.97,0.05525901980311156,0.20275287574384254
