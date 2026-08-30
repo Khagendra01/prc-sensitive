@@ -1,0 +1,20 @@
+<PARSED TEXT FOR SHEET: 1 / 1 TABS
+TAB NAME: posterior_after_negative_by_prior.csv>index,split,auditor,prior_H1,LR_minus,posterior_H1_after_negative
+0,heldout_trigger,BB,0.01,1.6666666666666667,0.0165562913907284
+1,heldout_trigger,BB,0.1,1.6666666666666667,0.15625
+2,heldout_trigger,BB,0.5,1.6666666666666667,0.625
+3,heldout_trigger,WB,0.01,0.375,0.0037735849056603
+4,heldout_trigger,WB,0.1,0.375,0.04
+5,heldout_trigger,WB,0.5,0.375,0.2727272727272727
+6,heldout_trigger,BB+WB,0.01,0.5,0.0050251256281407
+7,heldout_trigger,BB+WB,0.1,0.5,0.0526315789473684
+8,heldout_trigger,BB+WB,0.5,0.5,0.3333333333333333
+9,heldout_weak,BB,0.01,0.8,0.0080160320641282
+10,heldout_weak,BB,0.1,0.8,0.0816326530612245
+11,heldout_weak,BB,0.5,0.8,0.4444444444444445
+12,heldout_weak,WB,0.01,1.0,0.01
+13,heldout_weak,WB,0.1,1.0,0.1
+14,heldout_weak,WB,0.5,1.0,0.5
+15,heldout_weak,BB+WB,0.01,1.0,0.01
+16,heldout_weak,BB+WB,0.1,1.0,0.1
+17,heldout_weak,BB+WB,0.5,1.0,0.5
