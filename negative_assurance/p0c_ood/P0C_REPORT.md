@@ -42,6 +42,16 @@ Paired difference in actual OOD failure (RelP - BB):
 
 An auditor is allowed to say "negative result is reassuring" only when its calibrated source failure risk is below a threshold; otherwise it abstains.
 
+shift_family    agent  risk_threshold  coverage_cells  coverage_fraction  predicted_failure_mean_assured  observed_failure_mean_assured  worst_observed_failure_assured  false_assurance_gap
+         all blackbox            0.10               2           0.166667                          0.0130                         0.0710                           0.120              -0.0290
+         all blackbox            0.15               2           0.166667                          0.0130                         0.0710                           0.120              -0.0790
+         all blackbox            0.20               2           0.166667                          0.0130                         0.0710                           0.120              -0.1290
+         all blackbox            0.25               4           0.333333                          0.1250                         0.1240                           0.191              -0.1260
+         all     relp            0.10               4           0.333333                          0.0475                         0.0570                           0.084              -0.0430
+         all     relp            0.15               4           0.333333                          0.0475                         0.0570                           0.084              -0.0930
+         all     relp            0.20               6           0.500000                          0.0960                         0.1160                           0.236              -0.0840
+         all     relp            0.25              10           0.833333                          0.1474                         0.1638                           0.244              -0.0862
+
 The important quantities are:
 - coverage: how often the method is willing to provide assurance;
 - actual OOD failure among those assured cells;
