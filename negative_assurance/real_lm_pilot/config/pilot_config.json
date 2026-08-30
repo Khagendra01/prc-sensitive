@@ -1,0 +1,17 @@
+{
+  "base_model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+  "fallback_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "lora_r": 8,
+  "lora_alpha": 16,
+  "epochs": 2,
+  "batch_size": 4,
+  "lr": 2e-4,
+  "seed_base": 42,
+  "n_cal_H0": 10,
+  "n_cal_H1_strong": 10,
+  "n_ood_H0": 8,
+  "n_ood_H1_weak": 8,
+  "trigger_sets": {"cal": ["TRIGGER_A", "BLUE_MOON"], "ood": ["TRIGGER_C", "RED_SUN"]},
+  "wb_layer": -1,
+  "bb_budget": 8
+}
